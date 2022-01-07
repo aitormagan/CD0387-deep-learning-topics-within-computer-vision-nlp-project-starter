@@ -28,6 +28,13 @@ Here is a screen shot with some completed training jobs:
 
 ![Endpoint Running](./screenshots/completed_training_jobs.png)
 
+The best model we obtain was the one with these hyperparameters:
+
+* `lr`: 0.0018658613084312835
+* `epochs`: 32
+* `batch-size`: 4
+
+
 ## Debugging and Profiling
 
 Debugging and profiling was performed according to the instructions given throughout the course. In this case, the following rules were applied:
