@@ -33,9 +33,25 @@ Remember that your README should:
 
 
 ## Model Deployment
-**TODO**: Give an overview of the deployed model and instructions on how to query the endpoint with a sample input.
+To deloy the model, it has been required to create an extra file called `inference.py` which loads the model and transforms the input. 
 
-**TODO** Remember to provide a screenshot of the deployed active endpoint in Sagemaker.
+To call the model, you just have to execute the following lines of code replacing `IMAGE_PATH` by the path where your image is stored and `ENDPOINT` by the name of your endpoint:
 
-## Standout Suggestions
-**TODO (Optional):** This is where you can provide information about any standout suggestions that you have attempted.
+```python
+import io
+import sagemaker
+from PIL import Image
+from sagemaker.serializers import IdentitySerializer
+from sagemaker.pytorch.model import PyTorchPredictor
+
+serializer = IdentitySerializer("image/jpeg")
+predictor = PyTorchPredictor(ENDPOINT, serializer=serializer, sagemaker_session=sagemaker.Session())
+
+buffer = io.BytesIO()
+Image.open(IMAGE_PATH).save(buffer, format="JPEG")
+response = predictor.predict(buffer.getvalue())
+```
+
+Here is an image of the endpoint up and running:
+
+![Endpoint Running](./endpoint_running.png)
