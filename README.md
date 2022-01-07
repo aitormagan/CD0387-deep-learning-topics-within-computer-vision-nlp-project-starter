@@ -16,7 +16,7 @@ Upload the data to an S3 bucket through the AWS Gateway so that SageMaker has ac
 
 ## Hyperparameter Tuning
 
-The model wich was used for this project was ResNet18 as is the one which is prepared to deal with image identification. 
+The model which was used for this project was ResNet18 as is the one which is prepared to deal with image identification. 
 
 Here is the list of hyperparameters which have been tuned. They have been chosen according to the instructions given throughout the course and AWS recommendations:
 
@@ -29,16 +29,35 @@ Here is a screen shot with some completed training jobs:
 ![Endpoint Running](./screenshots/completed_training_jobs.png)
 
 ## Debugging and Profiling
-**TODO**: Give an overview of how you performed model debugging and profiling in Sagemaker
+
+Debugging and profiling was performed according to the instructions given throughout the course. In this case, the following rules were applied:
+
+```python
+    ProfilerRule.sagemaker(rule_configs.LowGPUUtilization()),
+    ProfilerRule.sagemaker(rule_configs.ProfilerReport()),
+    Rule.sagemaker(rule_configs.vanishing_gradient()),
+    Rule.sagemaker(rule_configs.overfit()),
+```
+
+In order to perform a correct debugging, the `train_model.py` has been created based on the `hpo.py` and setting up the required hooks before traning and testing.
 
 ### Results
-**TODO**: What are the results/insights did you get by profiling/debugging your model?
 
-**TODO** Remember to provide the profiler html/pdf file in your submission.
+The results of the debugging/profiling session arose the following output:
 
+```
+VanishingGradient: NoIssuesFound
+Overfit: NoIssuesFound
+LowGPUUtilization: NoIssuesFound
+ProfilerReport: NoIssuesFound
+```
+
+As can be seen, no issues were found with this model.
+
+In case issues were found, we will have to take a look at the documentation and check for possible solutions. 
 
 ## Model Deployment
-To deloy the model, it has been required to create an extra file called `inference.py` which loads the model and transforms the input. 
+To deploy the model, it has been required to create an extra file called `inference.py` which loads the model and transforms the input. 
 
 To call the model, you just have to execute the following lines of code replacing `IMAGE_PATH` by the path where your image is stored and `ENDPOINT` by the name of your endpoint:
 
