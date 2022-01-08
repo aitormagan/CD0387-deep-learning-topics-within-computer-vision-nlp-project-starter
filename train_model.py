@@ -15,21 +15,23 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 CLASSES_NUMBER = 133
 
 
-def test(model, test_loader, hook):
+def test(model, test_loader, criterion, hook):
     model.eval()
     hook.set_mode(smd.modes.EVAL)
-    correct = 0
-    with torch.no_grad():
-        for data, target in test_loader:
-            output = model(data)
-            pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
-            correct += pred.eq(target.view_as(pred)).sum().item()
 
-    print(
-        "\nAccuracy: {}/{} ({:.0f}%)\n".format(
-            correct, len(test_loader.dataset), 100.0 * correct / len(test_loader.dataset)
-        )
-    )
+    running_loss = 0
+    running_corrects = 0
+
+    for inputs, labels in test_loader:
+        outputs = model(inputs)
+        loss = criterion(outputs, labels)
+        _, preds = torch.max(outputs, 1)
+        running_loss += loss.item() * inputs.size(0)
+        running_corrects += torch.sum(preds == labels.data).item()
+
+    total_loss = running_loss / len(test_loader.dataset)
+    total_acc = running_corrects / len(test_loader.dataset)
+    print(f"Accuracy: {100 * total_acc}%, Testing Loss: {total_loss}")
 
 
 def train(model, train_loader, criterion, optimizer, hook):
@@ -98,9 +100,12 @@ def main():
     args = parser.parse_args()
 
     model = net()
+    loss_criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.fc.parameters(), lr=args.lr)
 
     hook = smd.Hook.create_from_json_file()
-    hook.register_hook(model)
+    hook.register_module(model)
+    hook.register_loss(loss_criterion)
 
     train_transforms = transforms.Compose([
         # transforms.RandomRotation(30),
@@ -115,14 +120,11 @@ def main():
         transforms.ToTensor()])
 
     train_loader = create_data_loader(args.train, train_transforms, args.batch_size)
-    test_loader = create_data_loader(args.test, test_transforms, args.test_batch_size, shuffle=False)
-
-    loss_criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.fc.parameters(), lr=args.lr)
+    test_loader = create_data_loader(args.test, test_transforms, args.batch_size, shuffle=False)
 
     for epoch in range(1, args.epochs + 1):
         train(model, train_loader, loss_criterion, optimizer, hook)
-        test(model, test_loader, hook)
+        test(model, test_loader, loss_criterion, hook)
 
     path = os.path.join(args.model_dir, "model.pth")
     torch.save(model.cpu().state_dict(), path)
@@ -130,4 +132,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
