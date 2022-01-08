@@ -28,6 +28,10 @@ Here is a screen shot with some completed training jobs:
 
 ![Endpoint Running](./screenshots/completed_training_jobs.png)
 
+Attached, you can also find a screenshot where you can see all the hyperparameter tuning jobs with their score:
+
+![Endpoint Running](./screenshots/hyperparameter_tuning.png)
+
 The best model we obtain was the one with these hyperparameters:
 
 * `lr`: 0.0018658613084312835
