@@ -14,6 +14,12 @@ The project is designed to be dataset independent so if there is a dataset that 
 ### Access
 Upload the data to an S3 bucket through the AWS Gateway so that SageMaker has access to the data. 
 
+## Files
+
+* `hpo.py`: Used for hyperparameter tuning
+* `train_model.py`: Used for debugging and profiling. It extends the `hpo.py` file and and the required hooks. In addition, it also logs loss.
+* `inference.py`: It includes the required methods (`model_fn` to load the model and `input_fn` to transform the input into something which can be understood by the model) for the model to be deployed.  
+
 ## Hyperparameter Tuning
 
 The model which was used for this project was ResNet18 as is the one which is prepared to deal with image identification. 
